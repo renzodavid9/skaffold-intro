@@ -24,6 +24,6 @@ spec:
     spec:
       containers:
       - name: webapp
-        image: webapp:v1
+        image: webapp
         ports:
         - containerPort: 3000
