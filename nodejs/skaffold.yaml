@@ -21,3 +21,21 @@ manifests:
 
 deploy:
   kubectl: {}
+
+profiles:
+  - name: staging
+
+    build:
+      local:
+        push: true
+
+      artifacts:
+      - image: webapp
+        context: ./backend
+        
+    deploy:
+      kubeContext: gke_k8s-skaffold_us-central1-a_integration-tests-hybrid
+
+    patches:
+      - op: remove
+        path: /portForward
