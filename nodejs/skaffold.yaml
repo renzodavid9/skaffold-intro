@@ -1,0 +1,19 @@
+apiVersion: skaffold/v4beta7
+kind: Config
+
+portForward:
+  - resourceType: Deployment
+    resourceName: webapp
+    port: 3000
+
+build:
+  artifacts:
+  - image: webapp
+    context: ./backend
+
+manifests:
+  rawYaml:
+    - ./k8s/deployment.yaml
+
+deploy:
+  kubectl: {}
