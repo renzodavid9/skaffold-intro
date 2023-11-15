@@ -1,11 +1,6 @@
 apiVersion: skaffold/v4beta7
 kind: Config
 
-portForward:
-  - resourceType: Deployment
-    resourceName: webapp
-    port: 3000
-
 build:
   artifacts:
   - image: webapp
