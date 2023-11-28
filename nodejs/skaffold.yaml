@@ -10,10 +10,6 @@ build:
   artifacts:
   - image: webapp
     context: ./backend
-    sync:
-      manual:
-      - src: 'src/data/**/*.html'
-        dest: .
 
 manifests:
   rawYaml:
