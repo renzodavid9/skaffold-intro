@@ -83,7 +83,11 @@ skaffold run -p controller
 
 2. Now, run the entrypoint:
 ```bash
-skaffold dev -p entrypoint --status-check-selectors=resource-selecto.json
+skaffold dev -p entrypoint --status-check-selectors=resource-selector.json
 ```
 
 3. Play doing changes to the `task-run.yaml` and the entrypointer, and see how Skaffold behaves.
+
+### Other Skaffold features that we can add
+
+1. Take a look to [Skaffold modules](https://skaffold.dev/docs/design/config/#local-config-dependency), how can we re structure our `skaffold.yaml` file to use those?

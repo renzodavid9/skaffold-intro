@@ -6,14 +6,22 @@ build:
     envTemplate:
       template: "dev"
 
-profiles:
+profiles: #<- Skaffold profiles (https://skaffold.dev/docs/environment/profiles/)
+  - name: setup # <- Just to deploy a first version of the controller and entrypoint images.
+    build: 
+      artifacts:
+        - image: tektoncd-controller
+          context: .
+          ko:
+            dir: ./cmd/controller
+        - image: tekton-entrypoint
+          context: .
+          ko:
+            dir: ./cmd/entrypoint
+
   # This profile will let us play with the controller logic
   - name: controller
     build:
-      tagPolicy:
-        envTemplate:
-          template: "dev"
-      
       artifacts:
         - image: tektoncd-controller
           context: .
