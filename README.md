@@ -1,5 +1,5 @@
-# Skaffold 101 - scenario 0
-This is a simple webapp to demonstrate some Skaffold features
+# Skaffold with Tekton
+In this example we'll see how to configure Skaffold with the [Tekton Pipeline repo](https://github.com/tektoncd/pipeline) to enable a continues dev loop, and have a faster feedback during development as a [Tekton Developer]() 
 
 ## To run the application in your local machine
 
