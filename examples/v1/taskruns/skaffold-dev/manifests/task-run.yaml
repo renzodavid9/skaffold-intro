@@ -1,0 +1,14 @@
+apiVersion: tekton.dev/v1
+kind: TaskRun
+metadata:
+  name: my-task # <- We need the name, Skaffold runs kubectl apply
+spec:
+  taskSpec:
+    steps:
+    - image: img1
+      script: |
+        echo "OUTPUT: >>> Hello from step1"; sleep 2s; exit 0
+
+    - image: img1
+      script: |
+        echo "OUTPUT: >>> Hello from step2"; exit 0

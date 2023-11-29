@@ -1,54 +1,61 @@
 # Skaffold with Tekton
 In this example we'll see how to configure Skaffold with the [Tekton Pipeline repo](https://github.com/tektoncd/pipeline) to enable a continues dev loop, and have a faster feedback during development as a [Tekton Developer]() 
 
-## To run the application in your local machine
+We'll see how to configure Skaffold to be used with the controller logic and the entrypoint logic
 
-1. Run the following command in your terminal
+## Environment setup
+
+1. This example uses [Tekton Pipeline repo](https://github.com/tektoncd/pipeline), so you'll need to download a copy of it in your machine
+
+2. Install a copy of Tekton Pipeline in your local machine. Here we'll show you how to do it with minikube. Install minikube following the instructions in https://minikube.sigs.k8s.io/docs/start/
+
+3. Create a cluster for Tekton:
 ```bash
-cd nodejs/backend && npm install && npm run development
+minikube start --profile=tekton
 ```
 
-2. The app should be available in `http://localhost:3000/`
-
-## To run your application in your local minikube
-
-1. Install minikube (or your favorite local cluster) following the instructions in [https://minikube.sigs.k8s.io/docs/start/](https://minikube.sigs.k8s.io/docs/start/)
-
-2. Start your cluster
+4. To point your terminal's docker-cli to the Docker Engine inside minikube, run:
 ```bash
-minikube start
+eval $(minikube -p tekton docker-env)
 ```
 
-3. Go to the backend folder
+5. Deploy Tekton Pipeline:
 ```bash
-cd nodejs/backend
+ko apply -R -f config/
 ```
 
-4. Create your docker image
+## Skaffold setup
+The folder structure in this project follows the same structure of the Tekton Pipeline repo, that means, you should find the same folders in your copy of pipelines for the files we need to add/modify in the Tekton repo.
+
+Copy the files from this repo to your local copy of Tekton:
+
+* `config/controller.yaml`: it contains a couple of changes to make Skaffold work
+* `examples/v1/taskruns/skaffold-dev`: copy all the folder. It contains a simple TaskRun to use for tests
+* `resource-selector.json`: file for Skaffold to be able to track TaskRun status
+* `skaffold.yaml`: Skaffold config file
+
+Build all the images to put them in minikube
 ```bash
-docker build -t webapp:v1 -f Dockerfile .
+skaffold build -p setup
 ```
 
-5.  Load the image into the minikube cluster
+### Dev mode for Tekton Pipeline controller
+Here we'll trigger a devloop for the controller logic
+
+1. To trigger the controller with Skaffold run:
 ```bash
-minikube image load webapp:v1
+skaffold dev -p controller
 ```
 
-6. Update your K8s manifest with the image + tag created. Right now the `nodejs/k8s/deployment.yaml` file has the proper value already
-
-7. Deploy the manifest to K8s
+2. Deploy a TaskRun and see the logs from Skaffold:
 ```bash
-kubectl apply -f nodejs/k8s/deployment.yaml
+kubectl apply -f examples/v1/taskruns/skaffold-dev/manifests/plain-task-run.yaml
 ```
 
-8. Expose the minikube app
-```bash
-minikube tunnel
-```
+3. Make a change in the reconciler, e.g, add a couple of print statements in:
+* https://github.com/tektoncd/pipeline/blob/532591101c08d7f6103c3dd7cd005ef1a5c3f8cb/pkg/reconciler/taskrun/taskrun.go#L126
+* https://github.com/tektoncd/pipeline/blob/532591101c08d7f6103c3dd7cd005ef1a5c3f8cb/pkg/reconciler/taskrun/taskrun.go#L143
+* https://github.com/tektoncd/pipeline/blob/532591101c08d7f6103c3dd7cd005ef1a5c3f8cb/pkg/reconciler/taskrun/taskrun.go#L158
+* https://github.com/tektoncd/pipeline/blob/532591101c08d7f6103c3dd7cd005ef1a5c3f8cb/pkg/reconciler/taskrun/taskrun.go#L166
 
-7. Get the URL to access the app
-```bash
-kubectl get svc
-```
-
-8. Open the app: `http://127.0.0.1:3000/`
+4. Save the file and see how Skaffold will deploy your controller again

@@ -1,0 +1,8 @@
+{
+    "selectors":[
+        {
+            "group":"tekton.dev",
+            "kind":"TaskRun"
+        }
+    ]
+}

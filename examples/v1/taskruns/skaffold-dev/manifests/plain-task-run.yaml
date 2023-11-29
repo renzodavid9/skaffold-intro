@@ -1,0 +1,10 @@
+apiVersion: tekton.dev/v1
+kind: TaskRun
+metadata:
+  name: my-plain-task
+spec:
+  taskSpec:
+    steps:
+    - image: alpine:3.16
+      script: |
+        echo "OUTPUT: >>> Hello from step1"; sleep 2s; exit 0

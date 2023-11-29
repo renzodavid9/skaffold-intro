@@ -1,0 +1,63 @@
+apiVersion: skaffold/v4beta1
+kind: Config
+
+build:
+  tagPolicy:
+    envTemplate:
+      template: "dev"
+
+profiles:
+  # This profile will let us play with the controller logic
+  - name: controller
+    build:
+      tagPolicy:
+        envTemplate:
+          template: "dev"
+      
+      artifacts:
+        - image: tektoncd-controller
+          context: .
+          ko:
+            dir: ./cmd/controller
+
+    manifests:
+      rawYaml:
+        - ./config/controller.yaml
+
+    deploy:
+      kubectl: {}
+  
+
+  # This profile will let us play with the entrypoint logic + custom images
+  - name: entrypoint
+    build:
+      artifacts:
+        - image: tekton-entrypoint
+          context: .
+          ko:
+            dir: ./cmd/entrypoint
+
+        - image: img1
+          context: .
+          ko:
+            fromImage: golang:1.20
+            dir: ./examples/v1/taskruns/skaffold-dev/images/img1
+    
+    manifests:
+      rawYaml:
+        - ./examples/v1/taskruns/skaffold-dev/manifests/task-run.yaml
+    
+    deploy:
+      kubectl:
+        hooks:
+          before:
+            - host:
+                command: ["sh", "-c", "kubectl --wait=true delete pod my-task-pod; exit 0"]
+            - host:
+                command: ["sh", "-c", "kubectl delete taskrun my-task --wait=true; exit 0"]
+
+    resourceSelector:
+      allow:
+      - groupKind: TaskRun.tekton.dev
+        image: [".spec.taskSpec.steps.image", ".metadata.annotations.image"]
+        labels: [".*"]
