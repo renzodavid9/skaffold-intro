@@ -34,6 +34,8 @@ Copy the files from this repo to your local copy of Tekton:
 * `resource-selector.json`: file for Skaffold to be able to track TaskRun status
 * `skaffold.yaml`: Skaffold config file
 
+All the `skaffold` commands must be run in Tekton Pipeline repo, in the root folder (where the `skaffold.yaml` file is).
+
 Build all the images to put them in minikube
 ```bash
 skaffold build -p setup
@@ -59,3 +61,29 @@ kubectl apply -f examples/v1/taskruns/skaffold-dev/manifests/plain-task-run.yaml
 * https://github.com/tektoncd/pipeline/blob/532591101c08d7f6103c3dd7cd005ef1a5c3f8cb/pkg/reconciler/taskrun/taskrun.go#L166
 
 4. Save the file and see how Skaffold will deploy your controller again
+
+5. Deploy the TaskRun again:
+```bash
+kubectl delete -f examples/v1/taskruns/skaffold-dev/manifests/plain-task-run.yaml
+```
+
+```bash
+kubectl delete -f examples/v1/taskruns/skaffold-dev/manifests/plain-task-run.yaml
+```
+
+6. Let's filter the logs, take a look to [Skaffold log tailing](https://skaffold.dev/docs/log-tailing/) and configure it yourself :)
+
+### Dev mode for Tekton Pipeline entrypoint
+Here we'll trigger a devloop for the entrypoint logic
+
+1. To trigger the entrypoint with Skaffold run, first, deploy the controller. Previous experimentation deleted it:
+```bash
+skaffold run -p controller
+```
+
+2. Now, run the entrypoint:
+```bash
+skaffold dev -p entrypoint --status-check-selectors=resource-selecto.json
+```
+
+3. Play doing changes to the `task-run.yaml` and the entrypointer, and see how Skaffold behaves.
